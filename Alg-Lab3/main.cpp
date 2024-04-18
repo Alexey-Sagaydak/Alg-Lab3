@@ -163,8 +163,8 @@ int main() {
         // Timing successful search
         auto start = std::chrono::high_resolution_clock::now();
         for (int key : keys) {
-            lpht.search(key);
-            dhht.search(key);
+            //lpht.search(key);
+            //dhht.search(key);
             scht.search(key);
         }
         auto end = std::chrono::high_resolution_clock::now();
@@ -183,9 +183,9 @@ int main() {
         // TODO: тут тоже отдельно для каждого измерять
         start = std::chrono::high_resolution_clock::now();
         for (int fakeKey : fakeKeys) {
-            lpht.search(fakeKey);
+            //lpht.search(fakeKey);
             dhht.search(fakeKey);
-            scht.search(fakeKey);
+            //scht.search(fakeKey);
         }
         end = std::chrono::high_resolution_clock::now();
         elapsed = end - start;
