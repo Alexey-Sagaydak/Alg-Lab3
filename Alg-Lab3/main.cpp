@@ -163,9 +163,9 @@ int main() {
         // Timing successful search
         auto start = std::chrono::high_resolution_clock::now();
         for (int key : keys) {
-            //lpht.search(key);
+            lpht.search(key);
             //dhht.search(key);
-            scht.search(key);
+            //scht.search(key);
         }
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = end - start;
@@ -183,13 +183,13 @@ int main() {
         // TODO: тут тоже отдельно для каждого измерять
         start = std::chrono::high_resolution_clock::now();
         for (int fakeKey : fakeKeys) {
-            //lpht.search(fakeKey);
-            dhht.search(fakeKey);
+            lpht.search(fakeKey);
+            //dhht.search(fakeKey);
             //scht.search(fakeKey);
         }
         end = std::chrono::high_resolution_clock::now();
         elapsed = end - start;
-        std::cout << i * 10 << "% full: Unsuccessful search time = " << elapsed.count() << " seconds.\n";
+        std::cout << i * 10 << "% full: Unsuccessful search time = " << elapsed.count() * 1000 << " ms.\n";
     }
 
     // Testing removal
