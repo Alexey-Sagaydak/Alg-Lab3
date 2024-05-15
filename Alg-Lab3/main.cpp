@@ -5,6 +5,8 @@
 #include <random>
 
 const int TABLE_SIZE = 10007;  // Use a prime number for better distribution
+double probes_sum = 0;
+int k = 0;
 
 // Hash function for integer keys
 int hashFunction(int key, int size) {
@@ -21,9 +23,10 @@ class LinearProbingHashTable {
 private:
     std::vector<int> table;
     int currentSize;
+    int totalProbes; // ѕеременна€ дл€ отслеживани€ общего количества проб
 
 public:
-    LinearProbingHashTable() : table(TABLE_SIZE, -1), currentSize(0) {}
+    LinearProbingHashTable() : table(TABLE_SIZE, -1), currentSize(0), totalProbes(0) {}
 
     void insert(int key) {
         int index = hashFunction(key, TABLE_SIZE);
@@ -56,12 +59,19 @@ public:
 
     bool search(int key) {
         int index = hashFunction(key, TABLE_SIZE);
+        int probes = 0; // ѕеременна€ дл€ отслеживани€ количества проб
         while (table[index] != -1) {
+            probes++;
             if (table[index] == key)
                 return true;
             index = (index + 1) % TABLE_SIZE;
         }
+        totalProbes += probes;
         return false;
+    }
+
+    double getAverageProbes() {
+        return static_cast<double>(totalProbes) / currentSize;
     }
 };
 
@@ -70,6 +80,7 @@ class DoubleHashingHashTable {
 private:
     std::vector<int> table;
     int currentSize;
+    int totalProbes; // ѕеременна€ дл€ отслеживани€ общего количества проб
 
 public:
     DoubleHashingHashTable() : table(TABLE_SIZE, -1), currentSize(0) {}
@@ -99,12 +110,19 @@ public:
     bool search(int key) {
         int index = hashFunction(key, TABLE_SIZE);
         int stepSize = doubleHash(key);
+        int probes = 0; // ѕеременна€ дл€ отслеживани€ количества проб
         while (table[index] != -1) {
+            probes++;
             if (table[index] == key)
                 return true;
             index = (index + stepSize) % TABLE_SIZE;
         }
+        totalProbes += probes;
         return false;
+    }
+
+    double getAverageProbes() {
+        return static_cast<double>(totalProbes) / currentSize;
     }
 };
 
@@ -159,19 +177,20 @@ int main() {
                 scht.insert(key);
             }
         }
-        // TODO: сделать замеры времени поиска отдельно дл€ каждой таблицы
+
         // Timing successful search
         auto start = std::chrono::high_resolution_clock::now();
         for (int key : keys) {
             lpht.search(key);
-            //dhht.search(key);
-            //scht.search(key);
+            dhht.search(key);
+            scht.search(key);
+            //probes_sum += lpht.getAverageProbes();
+            //k++;
         }
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = end - start;
-        std::cout << i * 10 << "% full: Search time = " << elapsed.count() * 1000 << " ms.\n";
-
-        // Timing unsuccessful search
+        //std::cout << i * 10 << "% full: Successful search time = " << elapsed.count() * 1000 << " ms.\n";//, probes: " << probes_sum / k << "\n";
+        
         std::vector<int> fakeKeys;
         while (fakeKeys.size() < numItems) {
             int fakeKey = dis(gen) + 1000001;  // Ensure these keys are not in the table
@@ -180,16 +199,21 @@ int main() {
             }
         }
 
-        // TODO: тут тоже отдельно дл€ каждого измер€ть
+        probes_sum = 0;
+        k = 0;
+
+        // Timing unsuccessful search
         start = std::chrono::high_resolution_clock::now();
         for (int fakeKey : fakeKeys) {
             lpht.search(fakeKey);
-            //dhht.search(fakeKey);
-            //scht.search(fakeKey);
+            dhht.search(fakeKey);
+            scht.search(fakeKey);
+            //probes_sum += dhht.getAverageProbes();
+            //k++;
         }
         end = std::chrono::high_resolution_clock::now();
         elapsed = end - start;
-        std::cout << i * 10 << "% full: Unsuccessful search time = " << elapsed.count() * 1000 << " ms.\n";
+        //std::cout << i * 10 << "% full: Unsuccessful search time = " << elapsed.count() * 1000 << " ms.\n";//, probes: " << probes_sum / k << "\n";
     }
 
     // Testing removal
